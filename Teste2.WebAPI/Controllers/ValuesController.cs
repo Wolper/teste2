@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Teste2.WebAPI.Data;
 using Teste2.WebAPI.Models;
 
@@ -14,22 +16,42 @@ namespace Teste2.WebAPI.Controllers
     {
         public readonly DataContext context;
 
-        public ValuesController(DataContext context){
+        public ValuesController(DataContext context)
+        {
             this.context = context;
         }
 
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<Usuario>> Get()
+        public async Task<IActionResult> Get()
         {
-            return this.context.Usuarios.ToList();            
+            try
+            {
+                var result = await this.context.Usuarios.ToListAsync();
+                return Ok(result);
+
+            }
+            catch (System.Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Fail!");
+            }
+
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ActionResult<Usuario> Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-           return this.context.Usuarios.FirstOrDefault(x => x.id == id);
+            try
+            {
+                var result = await this.context.Usuarios.FirstOrDefaultAsync(x => x.id == id);
+                return Ok(result);
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database Fail!");
+            }
+
         }
 
         // POST api/values
